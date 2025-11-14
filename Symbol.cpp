@@ -53,9 +53,9 @@ void Symbol::randomizeChar() {
     ch = 33 + rand() % 94;
 }
 
+// выбираем случайный основной цвет и случайно добавляем интенсивность
 void Symbol::randomizeColor() {
     if (epilepsy) {
-        // выбираем случайный основной цвет и случайно добавляем интенсивность
         int base = 1 + (rand() % 7); // 1..7 (R,G,B combinations)
         WORD colorAttr = static_cast<WORD>(base);
         if (rand() % 2) colorAttr |= FOREGROUND_INTENSITY;
