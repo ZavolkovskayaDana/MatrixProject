@@ -7,7 +7,7 @@
 #include <iostream> 
 
 
-// Новый вариант с отскоком (bounce)
+// с отскоком 
 static int clampAndBounceY(int y, int height, int& zigDir) {
     if (y <= 1) {
         y = 1;

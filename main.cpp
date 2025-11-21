@@ -55,6 +55,12 @@ int main(int argc, char* argv[]) {
         }
 
         std::string ep = argv[3];
+
+        if (ep.size() != 1) {
+            std::cerr << "Ошибка: режим эпилепсии должен быть OДНИМ символом (Y или N).\n";
+            return 1;
+        }
+
         if (ep == "Y" || ep == "y") epilepsy = true;
         else if (ep == "N" || ep == "n") epilepsy = false;
         else {
