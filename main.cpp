@@ -11,10 +11,11 @@ void showHelp() {
         << "Использование:\n"
         << "  matrix.exe [скорость] [длина] [режим_эпилепсии]\n"
         << "Параметры:\n"
+        << "  frequency         1–30 линий/секунду\n"
         << "  скорость          1–30 символов/сек\n"
         << "  длина             1–30 символов\n"
         << "  режим_эпилепсии   Y/N\n"
-        << "\nПример: matrix.exe 15 10 Y\n"
+        << "\nПример: matrix.exe 5 15 10 Y\n"
         << "Если параметры не указаны — программа запустится в диалоговом режиме.\n";
 }
 
@@ -32,7 +33,7 @@ bool isValidInt(const std::string& str, int min, int max, int& value) {
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "Russian");
 
-    int frequency;
+    int frequency = 0;
     int speed = 0;
     int length = 0;
     bool epilepsy = false;
@@ -52,19 +53,19 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        if (!isValidInt(argv[1], 1, 30, speed)) {
+        if (!isValidInt(argv[2], 1, 30, speed)) {
             std::cerr << "Ошибка: скорость должна быть в диапазоне 1–30. Обратитесь за помощью --help.\n";
             return 1;
         }
-        if (!isValidInt(argv[2], 1, 30, length)) {
+        if (!isValidInt(argv[3], 1, 30, length)) {
             std::cerr << "Ошибка: длина должна быть в диапазоне 1–30. Обратитесь за помощью --help.\n";
             return 1;
         }
 
-        std::string ep = argv[3];
+        std::string ep = argv[4];
 
         if (ep.size() != 1) {
-            std::cerr << "Ошибка: режим эпилепсии должен быть OДНИМ символом (Y или N).\n";
+            std::cerr << "Ошибка: режим эпилепсии должен быть одним символом (Y или N).\n";
             return 1;
         }
 
@@ -74,9 +75,21 @@ int main(int argc, char* argv[]) {
             std::cerr << "Ошибка: режим эпилепсии должен быть Y или N. Обратитесь за помощью --help.\n";
             return 1;
         }
+
+        AppManager app(frequency, speed, length, epilepsy);
+        app.run();
+        return 0;
     }
+    
     // Диалоговый режим 
     else {
+
+        std::cout << "Введите частоту линий (1–30): ";
+        while (!(std::cin >> frequency) || frequency < 1 || frequency > 30) {
+            std::cout << "Ошибка! Введите число от 1 до 30: ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+        }
         std::cout << "Введите скорость линий (1–30): ";
         while (!(std::cin >> speed) || speed < 1 || speed > 30) {
             std::cout << "Ошибка! Введите число от 1 до 30: ";

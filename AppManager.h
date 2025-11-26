@@ -12,7 +12,7 @@ private:
 
 public:
     AppManager(); //  конструктор по умолчанию
-    AppManager(int speed, int length, bool epilepsy); //  новый конструктор
+    AppManager(int forequency, int speed, int length, bool epilepsy); //  новый конструктор
     void initialize();  // настройка параметров от пользователя
     void run();
 };
