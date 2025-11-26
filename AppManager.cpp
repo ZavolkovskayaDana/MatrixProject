@@ -2,17 +2,20 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
+
 
 using namespace std;
 
 AppManager::AppManager()
-    : frequency(5), epilepsy(false), speed(50), length(10)
+    : frequency(5), epilepsy(false), speed(50), length(10), currentDelayIndex(0), lastSpawnTime(0)
 {
    srand(static_cast<unsigned>(time(nullptr))); // инициализация rand()
 }
 
 AppManager::AppManager(int frequency, int speed, int length, bool epilepsy)
-    : frequency(frequency), speed(speed), length(length), epilepsy(epilepsy)
+    : frequency(frequency), speed(speed), length(length), epilepsy(epilepsy), currentDelayIndex(0),
+    lastSpawnTime(0)
 {
     srand(static_cast<unsigned>(time(nullptr)));
 }
@@ -54,3 +57,17 @@ void AppManager::run() {
     }
 }
 
+//генерируем случайное рвемя задержек 
+void AppManager::generateSpawnSchedule() {
+    spawnDelays.clear();
+    spawnDelays.reserve(frequency);
+
+    for (int i = 0; i < frequency; i++) {
+        spawnDelays.push_back(rand() % 1000); // 0–999 мс
+    }
+
+    std::sort(spawnDelays.begin(), spawnDelays.end()); //сортируем список
+    currentDelayIndex = 0;
+    lastSpawnTime = GetTickCount64(); //время от начала секунды = время от начала процесса 
+
+}
