@@ -8,6 +8,7 @@ private:
     bool epilepsy;
     int speed;
     int length;
+    int frequency;
 
 public:
     AppManager(); //  конструктор по умолчанию

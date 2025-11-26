@@ -6,13 +6,13 @@
 using namespace std;
 
 AppManager::AppManager()
-    : epilepsy(false), speed(50), length(10)
+    : epilepsy(false), speed(50), length(10), frequency(5)
 {
    srand(static_cast<unsigned>(time(nullptr))); // инициализаци€ rand()
 }
 
 AppManager::AppManager(int speed, int length, bool epilepsy)
-    : speed(speed), length(length), epilepsy(epilepsy)
+    : speed(speed), length(length), epilepsy(epilepsy), frequency(5)
 {
     srand(static_cast<unsigned>(time(nullptr)));
 }
@@ -20,6 +20,9 @@ AppManager::AppManager(int speed, int length, bool epilepsy)
 // ввод параметров от пользовател€
 void AppManager::initialize() {
     //SystemUtils::initConsole(120, 35);
+
+    cout << "¬ведите частоту генерации линий (1Ц30): ";
+    cin >> frequency;
 
     cout << "¬ведите скорость линии (меньше = быстрее): ";
     cin >> speed;

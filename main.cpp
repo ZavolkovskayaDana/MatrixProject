@@ -32,6 +32,7 @@ bool isValidInt(const std::string& str, int min, int max, int& value) {
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "Russian");
 
+    int frequency;
     int speed = 0;
     int length = 0;
     bool epilepsy = false;
@@ -44,7 +45,13 @@ int main(int argc, char* argv[]) {
     }
 
     // Режим командной строки 
-    if (argc == 4) {
+    if (argc == 5) {
+
+        if (!isValidInt(argv[1], 1, 30, frequency)) {
+            std::cerr << "Ошибка: частота должна быть в диапазоне 1–30.\n";
+            return 1;
+        }
+
         if (!isValidInt(argv[1], 1, 30, speed)) {
             std::cerr << "Ошибка: скорость должна быть в диапазоне 1–30. Обратитесь за помощью --help.\n";
             return 1;
@@ -113,7 +120,7 @@ int main(int argc, char* argv[]) {
 
 
         //  Инициализация и запуск приложения 
-        AppManager app(speed, length, epilepsy);
+        AppManager app(frequency, speed, length, epilepsy);
         app.run();
 
         return 0;
