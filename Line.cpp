@@ -40,10 +40,16 @@ Line::Line(int speed, int length, bool epilepsy)
     // направление зигзага — вверх или вниз
     zigDir = (startY <= height / 2) ? +1 : -1;
 
-    initialize();
 }
 
-void Line::initialize() {
+/*void Line::initialize(int column)
+{
+    currentX = column;
+    baseX = column;
+    symbols.clear();
+}
+*/
+/*void Line::initialize() {
     int frameDelay = 1000 / (speed > 0 ? speed : 1);
     symbols.clear();
     currentX = baseX;
@@ -66,51 +72,54 @@ void Line::initialize() {
         SystemUtils::sleep(frameDelay);
     }
 }
+*/
 
-void Line::moveStep() {
+/*void Line::initialize(int column)
+{
+    currentX = column;
+    baseX = column;
+    symbols.clear();
+}*/
 
+bool Line::isFinished() const {
     int endX = SystemUtils::getEndX();
+    return !symbols.empty() && symbols.back().getX() >= endX;
+}
+
+void Line::moveStep()
+{
     int frameDelay = 1000 / (speed > 0 ? speed : 1);
     int height = SystemUtils::getConsoleHeight() - 3;
 
-    // если линия ещё растёт
+    // линия ещё растёт
     if (symbols.size() < static_cast<size_t>(length)) {
         int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
+
         int parity = (newX - baseX) & 1;
         int newY = startY + (parity ? zigDir : 0);
         newY = clampAndBounceY(newY, height, zigDir);
 
         symbols.emplace_back(newX, newY, epilepsy);
         symbols.back().draw();
+
         SystemUtils::sleep(frameDelay);
         return;
     }
 
-    // если дошли до конца экрана — перезапускаем линию
-    if (symbols.back().getX() >= endX) {
-        for (auto& s : symbols) {
+    // линия завершена — больше не отрисовывать
+    if (isFinished()) {
+        for (auto& s : symbols)
             s.clear();
-            SystemUtils::sleep(frameDelay / 2);
-        }
-
-        baseX = SystemUtils::getStartX();
-        currentX = baseX;
-        symbols.clear();
-
-        int margin = 2;
-        startY = rand() % (height - 2 * margin) + margin;
-        zigDir = (startY <= height / 2) ? +1 : -1;
-
         return;
     }
 
-    // обычный сдвиг линии
+    // обычный шаг — хвост очищается
     symbols.front().clear();
-    for (size_t i = 0; i < symbols.size() - 1; ++i) {
+    for (size_t i = 0; i < symbols.size() - 1; i++)
         symbols[i] = symbols[i + 1];
-    }
 
     int newX = symbols.back().getX() + 1;
+
     int parity = (newX - baseX) & 1;
     int newY = startY + (parity ? zigDir : 0);
     newY = clampAndBounceY(newY, height, zigDir);

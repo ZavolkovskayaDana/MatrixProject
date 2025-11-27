@@ -39,6 +39,18 @@ void AppManager::initialize() {
     system("cls"); // очистка экрана после ввода
 }
 
+void AppManager::createNewLine() {
+    int column = rand() % width;        
+    lines.emplace_back(column, height, speed, length, epilepsy);
+}
+ //отрисовка 
+void AppManager::drawFrame() {
+    for (auto& line : lines)
+        line.moveStep();
+
+    // удаляем линии, которые вышли за нижнюю границу
+    std::erase_if(lines, [](const Line& l) { return l.isFinished(); });
+}
 void AppManager::run() {
     SystemUtils::initConsole(120, 35);
 
@@ -57,7 +69,7 @@ void AppManager::run() {
     }
 }
 
-//генерируем случайное рвемя задержек 
+//генерируем случайное время задержек 
 void AppManager::generateSpawnSchedule() {
     spawnDelays.clear();
     spawnDelays.reserve(frequency);
@@ -68,6 +80,6 @@ void AppManager::generateSpawnSchedule() {
 
     std::sort(spawnDelays.begin(), spawnDelays.end()); //сортируем список
     currentDelayIndex = 0;
-    lastSpawnTime = GetTickCount64(); //время от начала секунды = время от начала процесса 
+    lastSpawnTime = GetTickCount64(); //время начала текущей секунды = количество миллисекунд, прошедших с момента запуска системы.емя от начала процесса 
 
 }

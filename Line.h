@@ -17,7 +17,7 @@ public:
     Line(int speed, int length, bool epilepsy);
 
     void moveStep();  // двигаем линию на один шаг
+    //void initialize(int column);  // создать линию в начальной позиции
 
-
-    void initialize();  // создать линию в начальной позиции
+    bool isFinished() const; //флаг окончания 
 };
