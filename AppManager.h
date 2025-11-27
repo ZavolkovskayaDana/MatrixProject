@@ -2,6 +2,7 @@
 #include "Line.h"
 #include "SystemUtils.h"
 #include <ctime>
+#include <vector>
 
 class AppManager {
 private:

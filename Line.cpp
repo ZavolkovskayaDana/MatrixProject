@@ -102,7 +102,7 @@ void Line::moveStep()
         symbols.emplace_back(newX, newY, epilepsy);
         symbols.back().draw();
 
-        SystemUtils::sleep(frameDelay);
+        //SystemUtils::sleep(frameDelay);
         return;
     }
 
@@ -127,7 +127,7 @@ void Line::moveStep()
     symbols.back() = Symbol(newX, newY, epilepsy);
     symbols.back().draw();
 
-    SystemUtils::sleep(frameDelay);
+    //SystemUtils::sleep(frameDelay);
 }
 
 

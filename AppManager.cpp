@@ -40,24 +40,28 @@ void AppManager::initialize() {
 }
 
 void AppManager::createNewLine() {
-    int column = rand() % width;        
-    lines.emplace_back(column, height, speed, length, epilepsy);
+    lines.emplace_back(speed, length, epilepsy);
 }
+
  //отрисовка 
 void AppManager::drawFrame() {
     for (auto& line : lines)
         line.moveStep();
 
-    // удаляем линии, которые вышли за нижнюю границу
-    std::erase_if(lines, [](const Line& l) { return l.isFinished(); });
+    // удаляем линии, которые завершились
+    lines.erase(
+        std::remove_if(lines.begin(), lines.end(),
+            [](const Line& l) { return l.isFinished(); }),
+        lines.end());
 }
 void AppManager::run() {
     SystemUtils::initConsole(120, 35);
 
     SystemUtils::sleep(200); //  подождать, пока буфер установится
 
+    generateSpawnSchedule();
     // принудительно обновим данные о высоте
-    int h = SystemUtils::getConsoleHeight();
+    /*int h = SystemUtils::getConsoleHeight();
 
 
     system("cls");
@@ -66,8 +70,28 @@ void AppManager::run() {
 
     while (true) {
         line.moveStep();
+    }*/
+    while (true) {
+        DWORD now = GetTickCount64();
+        DWORD elapsed = now - lastSpawnTime;
+
+        if (currentDelayIndex < spawnDelays.size() &&
+            elapsed >= spawnDelays[currentDelayIndex])
+        {
+            createNewLine();
+            currentDelayIndex++;
+        }
+
+        if (elapsed >= 1000) {
+            generateSpawnSchedule();
+        }
+
+        drawFrame();
+        SystemUtils::sleep(10);
     }
 }
+
+
 
 //генерируем случайное время задержек 
 void AppManager::generateSpawnSchedule() {
