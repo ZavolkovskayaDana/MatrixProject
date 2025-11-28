@@ -13,6 +13,13 @@ private:
     int zigDir = -1;
     int baseX = 0;
     std::vector<Symbol> symbols;  // символы линии
+
+    // тестирование время последнего шага для данной линии 
+    unsigned long long lastStepTime = 0;
+
+    // Состояния: когда линия дошла до правого края — начинаем плавное затирание хвоста
+    bool exiting = false;
+    bool finished = false;
 public:
     Line(int speed, int length, bool epilepsy);
 
@@ -20,4 +27,8 @@ public:
     //void initialize(int column);  // создать линию в начальной позиции
 
     bool isFinished() const; //флаг окончания 
+
+private:
+    // вспомогательное: проверяем можно ли сделать шаг по времени
+    bool canStep();
 };
