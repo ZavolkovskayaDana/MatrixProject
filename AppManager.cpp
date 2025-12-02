@@ -87,7 +87,7 @@ void AppManager::run() {
         }
 
         drawFrame();
-        SystemUtils::sleep(10);
+        //SystemUtils::sleep(10); //ограничение количесвто кадрров в сек
     }
 }
 

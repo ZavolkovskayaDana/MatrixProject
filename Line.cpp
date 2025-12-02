@@ -47,18 +47,19 @@ Line::Line(int speed, int length, bool epilepsy)
 
 }
 
-// проверка: можно ли делать шаг согласно скорости
+// проверка: можно ли делать шаг согласно скорости (отслеживает интервал между шагами)
 bool Line::canStep() {
     // скорость — символов в секунду -> интервал в мс на шаг
     int frameDelay = 1000 / (speed > 0 ? speed : 1);
     unsigned long long now = GetTickCount64();
     if (now - lastStepTime >= static_cast<unsigned long long>(frameDelay)) {
         lastStepTime = now;
-        return true;
+        return true; //пора сделать шаг линии
     }
     return false;
 }
 
+//линия считается завершённой только после полного стирания хвоста
 bool Line::isFinished() const {
     return finished;
 }
@@ -75,7 +76,7 @@ void Line::moveStep()
     // упростим высоту под безопасную зону
     int usableHeight = (height > 4) ? height - 3 : height;
 
-    // 1) если линия ещё строится (её длина меньше заданной), добавляем по одному символу (эффект "выползания")
+    // Растет если линия ещё строится (её длина меньше заданной), добавляем по одному символу (эффект "выползания")
     if (!exiting && symbols.size() < static_cast<size_t>(length)) {
         int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
         int parity = (newX - baseX) & 1;
@@ -87,7 +88,7 @@ void Line::moveStep()
         return;
     }
 
-    // 2) если голова уже дошла (или мы в режиме exiting) — запускаем "плавное" удаление хвоста
+    // если голова уже дошла (или мы в режиме exiting) — запускаем "плавное" удаление хвоста
     int endX = SystemUtils::getEndX();
     int headX = symbols.empty() ? -9999 : symbols.back().getX();
 
@@ -96,7 +97,7 @@ void Line::moveStep()
         exiting = true;
         // не добавляем новую голову — далее будем стирать хвост по одному символу
     }
-
+    //затираем хвост 
     if (exiting) {
         // если нет символов — помечаем как finished
         if (symbols.empty()) {
@@ -125,7 +126,7 @@ void Line::moveStep()
         return;
     }
 
-    // 3) Обычный шаг: затираем хвост, смещаем все символы и добавляем новую голову
+    //  Обычный шаг: затираем хвост, смещаем все символы и добавляем новую голову
     // (должно выполняться только если !exiting и длина уже достигнута)
     if (symbols.size() >= static_cast<size_t>(length)) {
         // затираем первый(хвост)
@@ -147,87 +148,3 @@ void Line::moveStep()
         symbols.back().draw();
     }
 }
-/*void Line::initialize(int column)
-{
-    currentX = column;
-    baseX = column;
-    symbols.clear();
-}
-*/
-/*void Line::initialize() {
-    int frameDelay = 1000 / (speed > 0 ? speed : 1);
-    symbols.clear();
-    currentX = baseX;
-
-    int height = SystemUtils::getConsoleHeight() - 3;
-
-    if (startY < 1) startY = 1;
-    if (startY > height - 2) startY = height - 2;
-
-    // постепенная отрисовка зигзага
-    for (int i = 0; i < length; ++i) {
-        int x = currentX + i;
-        int parity = (x - baseX) & 1;
-        int y = startY + (parity ? zigDir : 0);
-        y = clampAndBounceY(y, height, zigDir);
-
-        symbols.emplace_back(x, y, epilepsy);
-        symbols.back().draw();
-
-        SystemUtils::sleep(frameDelay);
-    }
-}
-*/
-
-
-
-/*bool Line::isFinished() const {
-    int endX = SystemUtils::getEndX();
-    return !symbols.empty() && symbols.back().getX() >= endX;
-}
-
-void Line::moveStep()
-{
-    int frameDelay = 1000 / (speed > 0 ? speed : 1);
-    int height = SystemUtils::getConsoleHeight() - 3;
-
-    // линия ещё растёт
-    if (symbols.size() < static_cast<size_t>(length)) {
-        int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
-
-        int parity = (newX - baseX) & 1;
-        int newY = startY + (parity ? zigDir : 0);
-        newY = clampAndBounceY(newY, height, zigDir);
-
-        symbols.emplace_back(newX, newY, epilepsy);
-        symbols.back().draw();
-
-        //SystemUtils::sleep(frameDelay);
-        return;
-    }
-
-    // линия завершена — больше не отрисовывать
-    if (isFinished()) {
-        for (auto& s : symbols)
-            s.clear();
-        return;
-    }
-
-    // обычный шаг — хвост очищается
-    symbols.front().clear();
-    for (size_t i = 0; i < symbols.size() - 1; i++)
-        symbols[i] = symbols[i + 1];
-
-    int newX = symbols.back().getX() + 1;
-
-    int parity = (newX - baseX) & 1;
-    int newY = startY + (parity ? zigDir : 0);
-    newY = clampAndBounceY(newY, height, zigDir);
-
-    symbols.back() = Symbol(newX, newY, epilepsy);
-    symbols.back().draw();
-
-    //SystemUtils::sleep(frameDelay);
-}
-
-*/
