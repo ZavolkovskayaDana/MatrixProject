@@ -1,4 +1,5 @@
-﻿#define NOMINMAX
+﻿//Laba-02
+#define NOMINMAX
 #include <iostream>
 #include <string>
 #include "AppManager.h"
