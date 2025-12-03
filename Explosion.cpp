@@ -10,7 +10,7 @@ Explosion::Explosion(int x, int y, int radiusMin, int radiusMax)
     currentRadius(radiusMin),
     finished(false)
 {
-    lastStepTime = GetTickCount64(); //время от начала процесса 
+    lastStepTime = GetTickCount64();
 }
 
 bool Explosion::isFinished() const {
@@ -20,24 +20,38 @@ bool Explosion::isFinished() const {
 void Explosion::moveStep() {
     if (finished) return;
 
-    // задержка 500 мс (2 симв/сек)
     unsigned long long now = GetTickCount64();
-    if (now - lastStepTime < 500)
+    if (now - lastStepTime < 500) //2 сим/сек
         return;
 
     lastStepTime = now;
 
-    // Рисуем текущую окружность
-    drawCircle(currentRadius);
+    // Стираем предыдущие точки взрыва
+    for (auto& p : lastPoints) {
+        int x = p.first;
+        int y = p.second;
 
-    // Увеличиваем текущий радиус
-    currentRadius++;
+        if (x >= 0 && x < SystemUtils::getConsoleWidth() &&
+            y >= 0 && y < SystemUtils::getConsoleHeight())
+        {
+            SystemUtils::clearChar(x, y);
+        }
+    }
+    lastPoints.clear();
 
-    // Если радиус достиг максимума, то взрыв закончен
+    //  Если взрыв завершён — выходим
     if (currentRadius > radiusMax) {
         finished = true;
+        return;
     }
+
+    //  Рисуем текущее кольцо
+    drawCircle(currentRadius);
+
+    // Увеличиваем радиус
+    currentRadius++;
 }
+
 void Explosion::drawCircle(int r) {
     WORD color = randomColor();
 
@@ -51,13 +65,12 @@ void Explosion::drawCircle(int r) {
         }
         };
 
-    // Рисуем окружность по алгоритму "окружность Брезенхэма"
+    // Окружность Брезенхэма
     int x = 0;
     int y = r;
     int d = 3 - 2 * r;
 
     while (y >= x) {
-
         safePut(centerX + x, centerY + y);
         safePut(centerX - x, centerY + y);
         safePut(centerX + x, centerY - y);
@@ -72,34 +85,17 @@ void Explosion::drawCircle(int r) {
 
         if (d > 0) {
             y--;
-            d = d + 4 * (x - y) + 10;
+            d += 4 * (x - y) + 10;
         }
         else {
-            d = d + 4 * x + 6;
+            d += 4 * x + 6;
         }
     }
 }
 
-/*//рисуем точки вокруг цента 
-void Explosion::drawCircle(int r) {
-    WORD color = randomColor();
-
-    // 8 направлений 
-    SystemUtils::writeChar(centerX + r, centerY, '*', color);
-    SystemUtils::writeChar(centerX - r, centerY, '*', color);
-    SystemUtils::writeChar(centerX, centerY + r, '*', color);
-    SystemUtils::writeChar(centerX, centerY - r, '*', color);
-
-    // диагонали
-    SystemUtils::writeChar(centerX + r, centerY + r, '*', color);
-    SystemUtils::writeChar(centerX + r, centerY - r, '*', color);
-    SystemUtils::writeChar(centerX - r, centerY + r, '*', color);
-    SystemUtils::writeChar(centerX - r, centerY - r, '*', color);
-}*/
-
 WORD Explosion::randomColor() const {
-    int base = 1 + (rand() % 7);  // случайный цвет
-    WORD colorAttr = static_cast<WORD>(base);
-    if (rand() % 2) colorAttr |= FOREGROUND_INTENSITY;
-    return colorAttr;
+    int base = 1 + (rand() % 7);
+    WORD color = static_cast<WORD>(base);
+    if (rand() % 2) color |= FOREGROUND_INTENSITY;
+    return color;
 }

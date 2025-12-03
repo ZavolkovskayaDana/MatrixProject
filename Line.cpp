@@ -74,241 +74,55 @@ bool Line::canStep() {
 bool Line::isFinished() const {
     return finished;
 }
-/*void Line::moveStep()
+
+void Line::moveStep()
 {
-    // 1. Пытаемся сделать взрыв
-    if (!symbols.empty()) { //проверяем не пустой ли вектор (есть ли в линии символы)
-        int chance = rand() % 1000; //случайная вероятность(шанс произойдет взрыв или нет)
-        if (chance < explosionProbability) { //если случайное число < заданной вер-ти, то взрыв будет
-            int x = symbols.front().getX(); //1-ый сивол 
+    if (finished) return;
+
+    // 0. Если линия заморожена после взрыва — стоим
+    if (exploding) {
+        unsigned long long now = GetTickCount64();
+        if (now < explodeLockEnd) {
+            // ещё не прошло 0.5 секунды — линия стоит
+            return;
+        }
+        else {
+            // пауза закончилась — размораживаем линию
+            exploding = false;
+            lastStepTime = now;  // чтобы сразу не было "рывка" по скорости
+        }
+    }
+
+
+    // 1. Тайминг скорости линии
+    if (!canStep()) return;
+
+    int height = SystemUtils::getConsoleHeight();
+    int usableHeight = (height > 4) ? height - 3 : height;
+
+    // 2. Попытка сделать взрыв (убирает только 1 символ)
+    if (!symbols.empty()) //если у нас вектор не пустой (в линии есть символы)
+    {
+        int chance = rand() % 1000; //рандомное число
+
+        if (chance < explosionProbability) //рандомное число < заданной вер-ти
+        {
+            int x = symbols.front().getX(); //координаты центра взрыва (1-ый символ)
             int y = symbols.front().getY();
 
             // создаём взрыв
             owner->createExplosion(x, y);
 
-            // уменьшаем линию
-            symbols.front().clear();       // стереть 1-ый символ
-            symbols.erase(symbols.begin()); // удаляет 1-ый символ из вектора и сдвигает остальные 
-            length--; //уменьшаем физ длину линии
-
-            // если линия разрушена полностью — завершить
-            if (length <= 0 || symbols.empty()) {
-                finished = true;
-                return;
-            }
-        }
-    }
-
-
-    // не делаем ничего, если уже пометили на удаление
-    if (finished) return;
-
-    // проверяем, наступил ли момент для этого шага по скорости
-    if (!canStep()) return;
-
-    int height = SystemUtils::getConsoleHeight();
-
-    // упростим высоту под безопасную зону
-    int usableHeight = (height > 4) ? height - 3 : height;
-
-    // Растет если линия ещё строится (её длина меньше заданной), добавляем по одному символу (эффект "выползания")
-    if (!exiting && symbols.size() < static_cast<size_t>(length)) {
-        int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
-        int parity = (newX - baseX) & 1;
-        int newY = startY + (parity ? zigDir : 0);
-        newY = clampAndBounceY(newY, usableHeight, zigDir);
-
-        symbols.emplace_back(newX, newY, epilepsy);
-        symbols.back().draw();
-        return;
-    }
-
-    // если голова уже дошла (или мы в режиме exiting) — запускаем "плавное" удаление хвоста
-    int endX = SystemUtils::getEndX();
-    int headX = symbols.empty() ? -9999 : symbols.back().getX();
-
-    if (!exiting && headX >= endX) {
-        // голова достигла края — начинаем режим выхода
-        exiting = true;
-        // не добавляем новую голову — далее будем стирать хвост по одному символу
-    }
-    //затираем хвост 
-    if (exiting) {
-        // если нет символов — помечаем как finished
-        if (symbols.empty()) {
-            finished = true;
-            return;
-        }
-
-        // затираем хвост (первый элемент)
-        symbols.front().clear();
-
-        // сдвигаем влево
-        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
-            symbols[i] = symbols[i + 1];
-        }
-
-        // удаляем последний дубликат (теперь последний символ продублировался)
-        symbols.pop_back();
-
-        // если после удаления элементов массив пуст — считаем линию завершённой
-        if (symbols.empty()) {
-            finished = true;
-            return;
-        }
-
-        // ничего больше не рисуем на этом шаге (уже сдвинули и затирали)
-        return;
-    }
-
-    //  Обычный шаг: затираем хвост, смещаем все символы и добавляем новую голову
-    // (должно выполняться только если !exiting и длина уже достигнута)
-    if (symbols.size() >= static_cast<size_t>(length)) {
-        // затираем первый(хвост)
-        symbols.front().clear();
-
-        // сдвигаем все элементы влево
-        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
-            symbols[i] = symbols[i + 1];
-        }
-
-        // вычисляем новый символ для конца
-        int newX = symbols.back().getX() + 1;
-        int parity = (newX - baseX) & 1;
-        int newY = startY + (parity ? zigDir : 0);
-        newY = clampAndBounceY(newY, usableHeight, zigDir);
-
-        // помещаем новую "голову" (перезаписывая последний элемент)
-        symbols.back() = Symbol(newX, newY, epilepsy);
-        symbols.back().draw();
-    }
-}
-*/
-/*void Line::moveStep()
-{
-    if (finished) return;
-
-    // 1. Проверяем можно ли делать шаг
-    if (!canStep()) return;
-
-    int height = SystemUtils::getConsoleHeight();
-    int usableHeight = (height > 4) ? height - 3 : height;
-
-    // 2. Попытка сделать взрыв (когда symbols уже существуют)
-    if (!symbols.empty()) {
-        int chance = rand() % 1000;
-
-        if (chance < explosionProbability) {
-            int x = symbols.front().getX();
-            int y = symbols.front().getY();
-
-            owner->createExplosion(x, y);
-
+            // удаляем 1-ый символ
             symbols.front().clear();
             symbols.erase(symbols.begin());
-            length--;
+            length--;   //реальная длина линии уменьшается 
 
-            if (length <= 0 || symbols.empty()) {
-                finished = true;
-                return;
-            }
-        }
-    }
+            // включаем "заморозку" линии на 0.5 секунды
+            exploding = true;
+            explodeLockEnd = GetTickCount64() + 500; // 500 мс = 2 шага в секунду у взрыва
 
-    // 3. Если линия еще строится — растём
-    if (!exiting && symbols.size() < static_cast<size_t>(length)) {
-
-        int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
-
-        int parity = (newX - baseX) & 1;
-        int newY = startY + (parity ? zigDir : 0);
-
-        newY = clampAndBounceY(newY, usableHeight, zigDir);
-
-        symbols.emplace_back(newX, newY, epilepsy);
-        symbols.back().draw();
-        return;
-    }
-
-    // 4. Проверка достижения правого края
-    int endX = SystemUtils::getEndX();
-    int headX = symbols.empty() ? -9999 : symbols.back().getX();
-
-    if (!exiting && headX >= endX) {
-        exiting = true;
-    }
-
-    // 5. Плавное стирание в режиме exiting
-    if (exiting) {
-        if (symbols.empty()) {
-            finished = true;
-            return;
-        }
-
-        symbols.front().clear();
-
-        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
-            symbols[i] = symbols[i + 1];
-        }
-
-        symbols.pop_back();
-
-        if (symbols.empty()) {
-            finished = true;
-        }
-
-        return;
-    }
-
-    // 6. Обычный шаг
-    if (symbols.size() >= static_cast<size_t>(length)) {
-
-        symbols.front().clear();
-
-        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
-            symbols[i] = symbols[i + 1];
-        }
-
-        int newX = symbols.back().getX() + 1;
-        int parity = (newX - baseX) & 1;
-        int newY = startY + (parity ? zigDir : 0);
-
-        newY = clampAndBounceY(newY, usableHeight, zigDir);
-
-        symbols.back() = Symbol(newX, newY, epilepsy);
-        symbols.back().draw();
-    }
-}
-*/
-void Line::moveStep()
-{
-    if (finished) return;
-
-    // 1. Тайминг скорости
-    if (!canStep()) return;
-
-    int height = SystemUtils::getConsoleHeight();
-    int usableHeight = (height > 4) ? height - 3 : height;
-
-    // 2. Попытка сделать взрыв (только если линия уже есть)
-
-    if (!symbols.empty())
-    {
-        int chance = rand() % 1000;
-
-        if (chance < explosionProbability)
-        {
-            int x = symbols.front().getX();
-            int y = symbols.front().getY();
-
-            owner->createExplosion(x, y);
-
-            // удаляем первый символ
-            symbols.front().clear();
-            symbols.erase(symbols.begin());
-            length--;
-
-            if (length <= 0 || symbols.empty()) {
+            if (length <= 0 || symbols.empty()) { //длина 0
                 finished = true;
                 return;
             }
@@ -316,13 +130,11 @@ void Line::moveStep()
     }
 
 
-    // 3. Если линия ещё растёт — добавляем голову справа
-  
+    // 3. Режим роста линии (пока не достигла полной длины)
     if (!exiting && symbols.size() < static_cast<size_t>(length))
     {
         int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
 
-        // правильный расчёт Y
         int parity = (newX - baseX) & 1;
         int newY = startY + (parity ? zigDir : 0);
         newY = clampAndBounceY(newY, usableHeight, zigDir);
@@ -332,19 +144,16 @@ void Line::moveStep()
         return;
     }
 
-  
-    // 4. Проверка, дошли ли до правого края
-
+    // 4. Проверяем достижение правого края - начинаем выход
     int endX = SystemUtils::getEndX();
     int headX = symbols.empty() ? -1 : symbols.back().getX();
 
-    if (!exiting && headX >= endX)
-    {
+    if (!exiting && headX >= endX) {
         exiting = true;
     }
 
-    // 5. Режим "исчезновения" — смещаем и удаляем хвост
-  
+
+    // 5. Режим плавного удаление линии справа-налево
     if (exiting)
     {
         if (symbols.empty()) {
@@ -352,10 +161,14 @@ void Line::moveStep()
             return;
         }
 
+        // очищаем хвост
         symbols.front().clear();
 
-        for (size_t i = 0; i + 1 < symbols.size(); ++i)
+        // сдвигаем всё влево
+        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
             symbols[i] = symbols[i + 1];
+            symbols[i].draw();          // ПЕРЕРИСОВКА!
+        }
 
         symbols.pop_back();
 
@@ -367,20 +180,23 @@ void Line::moveStep()
     }
 
 
-    // 6. Обычное движение линии вправо
-
+    // 6. Обычное движение линии (после достижения длины)
     if (symbols.size() >= static_cast<size_t>(length))
     {
+        // стираем хвост
         symbols.front().clear();
 
-        for (size_t i = 0; i + 1 < symbols.size(); ++i)
+        // сдвигаем всё влево
+        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
             symbols[i] = symbols[i + 1];
+            symbols[i].draw();       // ПЕРЕРИСОВКА!
+        }
 
+        // создаём новую голову
         int newX = symbols.back().getX() + 1;
 
         int parity = (newX - baseX) & 1;
         int newY = startY + (parity ? zigDir : 0);
-
         newY = clampAndBounceY(newY, usableHeight, zigDir);
 
         symbols.back() = Symbol(newX, newY, epilepsy);

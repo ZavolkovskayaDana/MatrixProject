@@ -16,6 +16,8 @@ private:
     unsigned long long lastStepTime;   // время последнего шага
     bool finished;                      // взрыв завершён
 
+    std::vector<std::pair<int, int>> lastPoints;
+
 public:
     Explosion(int x, int y, int radiusMin, int radiusMax);
 

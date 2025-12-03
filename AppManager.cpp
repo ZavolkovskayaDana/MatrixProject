@@ -118,17 +118,7 @@ void AppManager::run() {
     SystemUtils::sleep(200); //  подождать, пока буфер установится
 
     generateSpawnSchedule();
-    // принудительно обновим данные о высоте
-    /*int h = SystemUtils::getConsoleHeight();
 
-
-    system("cls");
-
-    Line line(speed, length, epilepsy);
-
-    while (true) {
-        line.moveStep();
-    }*/
     while (true) {
         DWORD now = GetTickCount64();
         DWORD elapsed = now - lastSpawnTime;
@@ -145,7 +135,6 @@ void AppManager::run() {
         }
 
         drawFrame();
-        //SystemUtils::sleep(10); //ограничение количесвто кадрров в сек
     }
 }
 
