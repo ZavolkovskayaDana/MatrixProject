@@ -3,6 +3,8 @@
 #include "SystemUtils.h"
 #include <ctime>
 #include <vector>
+#include "Explosion.h"
+
 
 class AppManager {
 private:

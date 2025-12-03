@@ -22,14 +22,21 @@ AppManager::AppManager()
     srand(static_cast<unsigned>(time(nullptr)));
 }
 
-AppManager::AppManager(int frequency, 
-    int speed, 
-    int length, 
-    bool epilepsy, 
+AppManager::AppManager(int frequency,
+    int speed,
+    int length,
+    bool epilepsy,
     int explosionProbability,
     int radiusMin,
     int radiusMax)
-    : frequency(frequency), speed(speed), length(length), epilepsy(epilepsy), currentDelayIndex(0),
+    : frequency(frequency),
+    speed(speed),
+    length(length),
+    epilepsy(epilepsy),
+    explosionProbability(explosionProbability),
+    radiusMin(radiusMin),
+    radiusMax(radiusMax),
+    currentDelayIndex(0),
     lastSpawnTime(0)
 {
     srand(static_cast<unsigned>(time(nullptr)));
@@ -65,7 +72,7 @@ void AppManager::initialize() {
 
 void AppManager::createNewLine() {
     //lines.emplace_back(speed, length, epilepsy);
-    figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax,this)
+    figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax, this));
         //функция возвращает указатель и кладет во внутренний массив
 }
 
