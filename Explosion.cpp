@@ -27,7 +27,7 @@ void Explosion::moveStep() {
 
     lastStepTime = now;
 
-    // Рисуем текущее кольцо
+    // Рисуем текущую окружность
     drawCircle(currentRadius);
 
     // Увеличиваем текущий радиус
@@ -37,4 +37,21 @@ void Explosion::moveStep() {
     if (currentRadius > radiusMax) {
         finished = true;
     }
+}
+
+//рисуем точки вокруг цента 
+void Explosion::drawCircle(int r) {
+    WORD color = randomColor();
+
+    // 8 направлений 
+    SystemUtils::writeChar(centerX + r, centerY, '*', color);
+    SystemUtils::writeChar(centerX - r, centerY, '*', color);
+    SystemUtils::writeChar(centerX, centerY + r, '*', color);
+    SystemUtils::writeChar(centerX, centerY - r, '*', color);
+
+    // диагонали
+    SystemUtils::writeChar(centerX + r, centerY + r, '*', color);
+    SystemUtils::writeChar(centerX + r, centerY - r, '*', color);
+    SystemUtils::writeChar(centerX - r, centerY + r, '*', color);
+    SystemUtils::writeChar(centerX - r, centerY - r, '*', color);
 }
