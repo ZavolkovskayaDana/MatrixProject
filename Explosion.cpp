@@ -55,3 +55,10 @@ void Explosion::drawCircle(int r) {
     SystemUtils::writeChar(centerX - r, centerY + r, '*', color);
     SystemUtils::writeChar(centerX - r, centerY - r, '*', color);
 }
+
+WORD Explosion::randomColor() const {
+    int base = 1 + (rand() % 7);  // случайный цвет
+    WORD colorAttr = static_cast<WORD>(base);
+    if (rand() % 2) colorAttr |= FOREGROUND_INTENSITY;
+    return colorAttr;
+}
