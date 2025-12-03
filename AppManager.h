@@ -14,6 +14,11 @@ private:
     int width;
     int height;
 
+    int explosionProbability;//вероятность взрыва 
+    int radiusMin;//мин радиус 
+    int radiusMax;//макс радиус 
+
+
     std::vector<Figure*> figures; //новый вектор для всех фигур (линии, взрывы), хранит указатели 
 
 
@@ -26,11 +31,24 @@ private:
 
 public:
     AppManager(); //  конструктор по умолчанию
-    AppManager(int forequency, int speed, int length, bool epilepsy); //  новый конструктор
+
+    AppManager(int frequency,
+        int speed,
+        int length,
+        bool epilepsy,
+        int explosionProbability,
+        int radiusMin,
+        int radiusMax);
+
+    ~AppManager(); //для очистки всех фигур при выходе
+
     void initialize();  // настройка параметров от пользователя
     void run();
+
+    void drawFrame();     // отрисовка и движение всех фигур
+    void createNewLine();   //срздаем линию
+    void createExplosion(int x, int y); //создаем взрыв
+
 private:
     void generateSpawnSchedule();
-    void createNewLine();
-    void drawFrame();
 };

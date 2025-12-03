@@ -7,13 +7,28 @@
 
 using namespace std;
 
+//по умолчанию
 AppManager::AppManager()
-    : frequency(5), epilepsy(false), speed(50), length(10), currentDelayIndex(0), lastSpawnTime(0)
+    : frequency(5),
+    speed(50),
+    length(10),
+    epilepsy(false),
+    explosionProbability(100),   
+    radiusMin(1),
+    radiusMax(3),
+    currentDelayIndex(0),
+    lastSpawnTime(0)
 {
-   srand(static_cast<unsigned>(time(nullptr))); // инициализаци€ rand()
+    srand(static_cast<unsigned>(time(nullptr)));
 }
 
-AppManager::AppManager(int frequency, int speed, int length, bool epilepsy)
+AppManager::AppManager(int frequency, 
+    int speed, 
+    int length, 
+    bool epilepsy, 
+    int explosionProbability,
+    int radiusMin,
+    int radiusMax)
     : frequency(frequency), speed(speed), length(length), epilepsy(epilepsy), currentDelayIndex(0),
     lastSpawnTime(0)
 {
@@ -35,6 +50,15 @@ void AppManager::initialize() {
 
     cout << "¬ключить режим эпилепсии? (1 - да, 0 - нет): ";
     cin >> epilepsy;
+
+    cout << "¬ведите веро€тность взрыва линии (1Ц1000): ";
+    cin >> explosionProbability;
+
+    cout << "¬ведите минимальный радиус взрыва (1Ц10): ";
+    cin >> radiusMin;
+
+    cout << "¬ведите максимальный радиус взрыва (" << radiusMin << "Ц10): ";
+    cin >> radiusMax;
 
     system("cls"); // очистка экрана после ввода
 }
