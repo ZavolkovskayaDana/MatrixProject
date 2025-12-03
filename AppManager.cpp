@@ -65,9 +65,10 @@ void AppManager::initialize() {
 
 void AppManager::createNewLine() {
     //lines.emplace_back(speed, length, epilepsy);
-    figures.push_back(new Line(speed, length, epilepsy)); //функция возвращает указатель и кладет во внутренний массив
-
+    figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax,this)
+        //функция возвращает указатель и кладет во внутренний массив
 }
+
 //создаем взрыв
 void AppManager::createExplosion(int x, int y) {
     figures.push_back(new Explosion(x, y, radiusMin, radiusMax));

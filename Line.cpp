@@ -20,8 +20,18 @@ static int clampAndBounceY(int y, int height, int& zigDir) {
     return y;
 }
 
-Line::Line(int speed, int length, bool epilepsy)
-    : speed(speed), length(length), epilepsy(epilepsy)
+Line::Line(int speed, int length, bool epilepsy,
+        int explosionProbability,
+        int radiusMin,
+        int radiusMax,
+        AppManager* owner)
+    : speed(speed),
+    length(length),
+    epilepsy(epilepsy),
+    explosionProbability(explosionProbability),
+    radiusMin(radiusMin),
+    radiusMax(radiusMax),
+    owner(owner)     // сохраняем указатель на AppManager
 {
     baseX = SystemUtils::getStartX();
     currentX = baseX;
@@ -65,6 +75,30 @@ bool Line::isFinished() const {
 }
 void Line::moveStep()
 {
+    // 1. Пытаемся сделать взрыв
+    if (!symbols.empty()) { //проверяем не пустой ли вектор (есть ли в линии символы)
+        int chance = rand() % 1000; //случайная вероятность(шанс произойдет взрыв или нет)
+        if (chance < explosionProbability) { //если случайное число < заданной вер-ти, то взрыв будет
+            int x = symbols.front().getX(); //1-ый сивол 
+            int y = symbols.front().getY();
+
+            // создаём взрыв
+            owner->createExplosion(x, y);
+
+            // уменьшаем линию
+            symbols.front().clear();       // стереть 1-ый символ
+            symbols.erase(symbols.begin()); // удаляет 1-ый символ из вектора и сдвигает остальные 
+            length--; //уменьшаем физ длину линии
+
+            // если линия разрушена полностью — завершить
+            if (length <= 0 || symbols.empty()) {
+                finished = true;
+                return;
+            }
+        }
+    }
+
+
     // не делаем ничего, если уже пометили на удаление
     if (finished) return;
 
