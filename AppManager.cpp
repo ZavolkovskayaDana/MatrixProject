@@ -40,19 +40,42 @@ void AppManager::initialize() {
 }
 
 void AppManager::createNewLine() {
-    lines.emplace_back(speed, length, epilepsy);
+    //lines.emplace_back(speed, length, epilepsy);
+    figures.push_back(new Line(speed, length, epilepsy)); //функция возвращает указатель и кладет во внутренний массив
+
 }
+//создаем взрыв
+void AppManager::createExplosion(int x, int y) {
+    figures.push_back(new Explosion(x, y, radiusMin, radiusMax));
+}
+
 
  //отрисовка 
 void AppManager::drawFrame() {
-    for (auto& line : lines)
-        line.moveStep();
+    /*for (auto& line : lines)
+        line.moveStep();*/
+    for (Figure* f : figures)
+        f->moveStep();   // вызывает Line::moveStep или Explosion::moveStep
 
-    // удаляем линии, которые завершились
+
+    /*// удаляем линии, которые завершились
     lines.erase(
         std::remove_if(lines.begin(), lines.end(),
             [](const Line& l) { return l.isFinished(); }),
-        lines.end());
+        lines.end());*/
+
+    //it - указатель на Figure*(элемент вектора)
+    for (auto it = figures.begin(); it != figures.end(); ) 
+    {
+        if ((*it)->isFinished()) { //если фигура закончила жиз цикл
+            delete* it;  //удаляем ее с помощью нашего вир деструктора(вызовет правильный деструктор Line или  Explosion)
+            it = figures.erase(it); //указатель на следующий элемент
+        }
+        else {
+            ++it;
+        }
+    }
+
 }
 void AppManager::run() {
     SystemUtils::initConsole(120, 35);

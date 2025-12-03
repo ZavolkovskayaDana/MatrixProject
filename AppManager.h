@@ -14,8 +14,11 @@ private:
     int width;
     int height;
 
+    std::vector<Figure*> figures; //новый вектор для всех фигур (линии, взрывы), хранит указатели 
+
+
     // Вектор активных линий
-    std::vector<Line> lines;
+    //std::vector<Line> lines;
 
     std::vector<int> spawnDelays; //список задержек появляений линий в данную секунду
     int currentDelayIndex; //индекс задержки в списке, который надо обработать 
