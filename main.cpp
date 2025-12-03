@@ -16,7 +16,10 @@ void showHelp() {
         << "  длина             1–30 символов\n"
         << "  режим_эпилепсии   Y/N\n"
         << "\nПример: matrix.exe 5 15 10 Y\n"
-        << "Если параметры не указаны — программа запустится в диалоговом режиме.\n";
+        << "Если параметры не указаны — программа запустится в диалоговом режиме.\n"
+        << "  probability          1–1000 вероятность взрыва\n"
+        << "  rMin                 1–10 минимальный радиус\n"
+        << "  rMax                 rMin–10 максимальный радиус\n\n";
 }
 
 // Проверка корректности числа
@@ -37,6 +40,10 @@ int main(int argc, char* argv[]) {
     int speed = 0;
     int length = 0;
     bool epilepsy = false;
+    int explosionProbability = 0;
+    int radiusMin = 0;
+    int radiusMax = 0;
+
 
     // Проверка на режим помощи 
     if (argc > 1 &&
@@ -46,7 +53,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Режим командной строки 
-    if (argc == 5) {
+    if (argc == 8) {
 
         if (!isValidInt(argv[1], 1, 30, frequency)) {
             std::cerr << "Ошибка: частота должна быть в диапазоне 1–30.\n";
@@ -76,7 +83,23 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        AppManager app(frequency, speed, length, epilepsy);
+        // новые параметры Лабы 3
+        if (!isValidInt(argv[5], 1, 1000, explosionProbability)) {
+            std::cerr << "Ошибка: вероятность должна быть 1–1000.\n";
+            return 1;
+        }
+
+        if (!isValidInt(argv[6], 1, 10, radiusMin)) {
+            std::cerr << "Ошибка: минимальный радиус 1–10.\n";
+            return 1;
+        }
+
+        if (!isValidInt(argv[7], radiusMin, 10, radiusMax)) {
+            std::cerr << "Ошибка: максимальный радиус должен быть в диапазоне "
+                << radiusMin << "–10.\n";
+            return 1;
+        }
+        AppManager app(frequency, speed, length, epilepsy, explosionProbability, radiusMin, radiusMax);
         app.run();
         return 0;
     }
@@ -131,9 +154,30 @@ int main(int argc, char* argv[]) {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // очищаем остатки ввода
         }
 
+        std::cout << "Введите вероятность взрыва линии (1–1000): ";
+        while (!(std::cin >> explosionProbability) || explosionProbability < 1 || explosionProbability > 1000) {
+            std::cout << "Ошибка! Введите число от 1 до 1000: ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+        }
+
+        std::cout << "Введите минимальный радиус взрыва (1–10): ";
+        while (!(std::cin >> radiusMin) || radiusMin < 1 || radiusMin > 10) {
+            std::cout << "Ошибка! Введите число от 1 до 10: ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+        }
+
+        std::cout << "Введите максимальный радиус взрыва (" << radiusMin << "–10): ";
+        while (!(std::cin >> radiusMax) || radiusMax < radiusMin || radiusMax > 10) {
+            std::cout << "Ошибка! Введите число от " << radiusMin << " до 10: ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+        }
+
 
         //  Инициализация и запуск приложения 
-        AppManager app(frequency, speed, length, epilepsy);
+        AppManager app(frequency, speed, length, epilepsy, explosionProbability, radiusMin, radiusMax);
         app.run();
 
         return 0;
