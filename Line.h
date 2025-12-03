@@ -3,11 +3,15 @@
 #include "Symbol.h"
 #include "SystemUtils.h"
 #include "Figure.h"
-#include "AppManager.h"
+
+
+class AppManager;  
+
 
 class Line : public Figure { //Все public-методы Figure станут public-методами Line
 private:
     AppManager* owner;   // ссылка на менеджер, то есть даем Line доступ к AppManager,так как Line не может сама создавать взрыв
+    
     int explosionProbability;
     int radiusMin;
     int radiusMax;
@@ -15,10 +19,12 @@ private:
     int length;                   // длина линии
     int speed;                    // скорость (символов в секунду)
     bool epilepsy;                // режим эпилепсии
+    
     int startY;                   // базовая высота (по Y)
     int currentX;                 // текущая X позиция линии
     int zigDir = -1;
     int baseX = 0;
+    
     std::vector<Symbol> symbols;  // символы линии
 
     // тестирование время последнего шага для данной линии 
@@ -27,6 +33,7 @@ private:
     // Состояния: когда линия дошла до правого края — начинаем плавное затирание хвоста
     bool exiting = false;
     bool finished = false;
+
 public:
     Line(int speed, int length, bool epilepsy,
         int explosionProbability,

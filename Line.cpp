@@ -1,4 +1,5 @@
 ﻿#include "Line.h"
+#include "AppManager.h"
 #include "SystemUtils.h"
 #include <cstdlib>
 #include <algorithm>
@@ -73,7 +74,7 @@ bool Line::canStep() {
 bool Line::isFinished() const {
     return finished;
 }
-void Line::moveStep()
+/*void Line::moveStep()
 {
     // 1. Пытаемся сделать взрыв
     if (!symbols.empty()) { //проверяем не пустой ли вектор (есть ли в линии символы)
@@ -178,6 +179,210 @@ void Line::moveStep()
         newY = clampAndBounceY(newY, usableHeight, zigDir);
 
         // помещаем новую "голову" (перезаписывая последний элемент)
+        symbols.back() = Symbol(newX, newY, epilepsy);
+        symbols.back().draw();
+    }
+}
+*/
+/*void Line::moveStep()
+{
+    if (finished) return;
+
+    // 1. Проверяем можно ли делать шаг
+    if (!canStep()) return;
+
+    int height = SystemUtils::getConsoleHeight();
+    int usableHeight = (height > 4) ? height - 3 : height;
+
+    // 2. Попытка сделать взрыв (когда symbols уже существуют)
+    if (!symbols.empty()) {
+        int chance = rand() % 1000;
+
+        if (chance < explosionProbability) {
+            int x = symbols.front().getX();
+            int y = symbols.front().getY();
+
+            owner->createExplosion(x, y);
+
+            symbols.front().clear();
+            symbols.erase(symbols.begin());
+            length--;
+
+            if (length <= 0 || symbols.empty()) {
+                finished = true;
+                return;
+            }
+        }
+    }
+
+    // 3. Если линия еще строится — растём
+    if (!exiting && symbols.size() < static_cast<size_t>(length)) {
+
+        int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
+
+        int parity = (newX - baseX) & 1;
+        int newY = startY + (parity ? zigDir : 0);
+
+        newY = clampAndBounceY(newY, usableHeight, zigDir);
+
+        symbols.emplace_back(newX, newY, epilepsy);
+        symbols.back().draw();
+        return;
+    }
+
+    // 4. Проверка достижения правого края
+    int endX = SystemUtils::getEndX();
+    int headX = symbols.empty() ? -9999 : symbols.back().getX();
+
+    if (!exiting && headX >= endX) {
+        exiting = true;
+    }
+
+    // 5. Плавное стирание в режиме exiting
+    if (exiting) {
+        if (symbols.empty()) {
+            finished = true;
+            return;
+        }
+
+        symbols.front().clear();
+
+        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
+            symbols[i] = symbols[i + 1];
+        }
+
+        symbols.pop_back();
+
+        if (symbols.empty()) {
+            finished = true;
+        }
+
+        return;
+    }
+
+    // 6. Обычный шаг
+    if (symbols.size() >= static_cast<size_t>(length)) {
+
+        symbols.front().clear();
+
+        for (size_t i = 0; i + 1 < symbols.size(); ++i) {
+            symbols[i] = symbols[i + 1];
+        }
+
+        int newX = symbols.back().getX() + 1;
+        int parity = (newX - baseX) & 1;
+        int newY = startY + (parity ? zigDir : 0);
+
+        newY = clampAndBounceY(newY, usableHeight, zigDir);
+
+        symbols.back() = Symbol(newX, newY, epilepsy);
+        symbols.back().draw();
+    }
+}
+*/
+void Line::moveStep()
+{
+    if (finished) return;
+
+    // 1. Тайминг скорости
+    if (!canStep()) return;
+
+    int height = SystemUtils::getConsoleHeight();
+    int usableHeight = (height > 4) ? height - 3 : height;
+
+    // 2. Попытка сделать взрыв (только если линия уже есть)
+
+    if (!symbols.empty())
+    {
+        int chance = rand() % 1000;
+
+        if (chance < explosionProbability)
+        {
+            int x = symbols.front().getX();
+            int y = symbols.front().getY();
+
+            owner->createExplosion(x, y);
+
+            // удаляем первый символ
+            symbols.front().clear();
+            symbols.erase(symbols.begin());
+            length--;
+
+            if (length <= 0 || symbols.empty()) {
+                finished = true;
+                return;
+            }
+        }
+    }
+
+
+    // 3. Если линия ещё растёт — добавляем голову справа
+  
+    if (!exiting && symbols.size() < static_cast<size_t>(length))
+    {
+        int newX = symbols.empty() ? currentX : symbols.back().getX() + 1;
+
+        // правильный расчёт Y
+        int parity = (newX - baseX) & 1;
+        int newY = startY + (parity ? zigDir : 0);
+        newY = clampAndBounceY(newY, usableHeight, zigDir);
+
+        symbols.emplace_back(newX, newY, epilepsy);
+        symbols.back().draw();
+        return;
+    }
+
+  
+    // 4. Проверка, дошли ли до правого края
+
+    int endX = SystemUtils::getEndX();
+    int headX = symbols.empty() ? -1 : symbols.back().getX();
+
+    if (!exiting && headX >= endX)
+    {
+        exiting = true;
+    }
+
+    // 5. Режим "исчезновения" — смещаем и удаляем хвост
+  
+    if (exiting)
+    {
+        if (symbols.empty()) {
+            finished = true;
+            return;
+        }
+
+        symbols.front().clear();
+
+        for (size_t i = 0; i + 1 < symbols.size(); ++i)
+            symbols[i] = symbols[i + 1];
+
+        symbols.pop_back();
+
+        if (symbols.empty()) {
+            finished = true;
+        }
+
+        return;
+    }
+
+
+    // 6. Обычное движение линии вправо
+
+    if (symbols.size() >= static_cast<size_t>(length))
+    {
+        symbols.front().clear();
+
+        for (size_t i = 0; i + 1 < symbols.size(); ++i)
+            symbols[i] = symbols[i + 1];
+
+        int newX = symbols.back().getX() + 1;
+
+        int parity = (newX - baseX) & 1;
+        int newY = startY + (parity ? zigDir : 0);
+
+        newY = clampAndBounceY(newY, usableHeight, zigDir);
+
         symbols.back() = Symbol(newX, newY, epilepsy);
         symbols.back().draw();
     }

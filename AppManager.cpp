@@ -42,6 +42,15 @@ AppManager::AppManager(int frequency,
     srand(static_cast<unsigned>(time(nullptr)));
 }
 
+AppManager::~AppManager() {
+    // По-хорошему можно удалить все фигуры, если они остались (но их нет, потому что run() — бесконечный цикл)
+    for (Figure* f : figures) {
+        delete f;
+    }
+    figures.clear();
+}
+
+
 // ввод параметров от пользователя
 void AppManager::initialize() {
     //SystemUtils::initConsole(120, 35);
@@ -81,34 +90,28 @@ void AppManager::createExplosion(int x, int y) {
     figures.push_back(new Explosion(x, y, radiusMin, radiusMax));
 }
 
-
- //отрисовка 
 void AppManager::drawFrame() {
-    /*for (auto& line : lines)
-        line.moveStep();*/
-    for (Figure* f : figures)
-        f->moveStep();   // вызывает Line::moveStep или Explosion::moveStep
+    // двигаем все, кто был в начале кадра
+    size_t count = figures.size();
+    for (size_t i = 0; i < count; ++i) {
+        figures[i]->moveStep();
+    }
 
-
-    /*// удаляем линии, которые завершились
-    lines.erase(
-        std::remove_if(lines.begin(), lines.end(),
-            [](const Line& l) { return l.isFinished(); }),
-        lines.end());*/
-
-    //it - указатель на Figure*(элемент вектора)
-    for (auto it = figures.begin(); it != figures.end(); ) 
+    // удаляем завершившиеся
+    for (auto it = figures.begin(); it != figures.end(); )
     {
-        if ((*it)->isFinished()) { //если фигура закончила жиз цикл
-            delete* it;  //удаляем ее с помощью нашего вир деструктора(вызовет правильный деструктор Line или  Explosion)
-            it = figures.erase(it); //указатель на следующий элемент
+        if ((*it)->isFinished()) {
+            delete* it;
+            it = figures.erase(it);
         }
         else {
             ++it;
         }
     }
-
 }
+
+
+
 void AppManager::run() {
     SystemUtils::initConsole(120, 35);
 

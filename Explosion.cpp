@@ -38,8 +38,49 @@ void Explosion::moveStep() {
         finished = true;
     }
 }
+void Explosion::drawCircle(int r) {
+    WORD color = randomColor();
 
-//рисуем точки вокруг цента 
+    int W = SystemUtils::getConsoleWidth();
+    int H = SystemUtils::getConsoleHeight();
+
+    auto safePut = [&](int x, int y) {
+        if (x >= 0 && x < W && y >= 0 && y < H) {
+            SystemUtils::writeChar(x, y, '*', color);
+            lastPoints.push_back({ x, y });
+        }
+        };
+
+    // Рисуем окружность по алгоритму "окружность Брезенхэма"
+    int x = 0;
+    int y = r;
+    int d = 3 - 2 * r;
+
+    while (y >= x) {
+
+        safePut(centerX + x, centerY + y);
+        safePut(centerX - x, centerY + y);
+        safePut(centerX + x, centerY - y);
+        safePut(centerX - x, centerY - y);
+
+        safePut(centerX + y, centerY + x);
+        safePut(centerX - y, centerY + x);
+        safePut(centerX + y, centerY - x);
+        safePut(centerX - y, centerY - x);
+
+        x++;
+
+        if (d > 0) {
+            y--;
+            d = d + 4 * (x - y) + 10;
+        }
+        else {
+            d = d + 4 * x + 6;
+        }
+    }
+}
+
+/*//рисуем точки вокруг цента 
 void Explosion::drawCircle(int r) {
     WORD color = randomColor();
 
@@ -54,7 +95,7 @@ void Explosion::drawCircle(int r) {
     SystemUtils::writeChar(centerX + r, centerY - r, '*', color);
     SystemUtils::writeChar(centerX - r, centerY + r, '*', color);
     SystemUtils::writeChar(centerX - r, centerY - r, '*', color);
-}
+}*/
 
 WORD Explosion::randomColor() const {
     int base = 1 + (rand() % 7);  // случайный цвет
