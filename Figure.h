@@ -1,7 +1,7 @@
 #pragma once
 class Figure {
 public:
-    virtual void moveStep() = 0;
+    virtual void moveStep() = 0; //виртуальный метод 
     virtual bool isFinished() const = 0;
     virtual ~Figure() = default; //виртуальный диструктор для правильного удаления (без него удалится только указатель в векторе, а с ним сама фигура)
 };

@@ -2,8 +2,9 @@
 #include <vector>
 #include "Symbol.h"
 #include "SystemUtils.h"
+#include "Figure.h"
 
-class Line {
+class Line : public Figure { //Все public-методы Figure станут public-методами Line
 private:
     int length;                   // длина линии
     int speed;                    // скорость (символов в секунду)
@@ -23,10 +24,10 @@ private:
 public:
     Line(int speed, int length, bool epilepsy);
 
-    void moveStep();  // двигаем линию на один шаг
+    void moveStep() override;  // двигаем линию на один шаг
     //void initialize(int column);  // создать линию в начальной позиции
 
-    bool isFinished() const; //флаг окончания 
+    bool isFinished() const override; //флаг окончания 
 
 private:
     // вспомогательное: проверяем можно ли сделать шаг по времени
