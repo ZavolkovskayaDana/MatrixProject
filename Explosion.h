@@ -28,4 +28,6 @@ public:
 private:
     void drawCircle(int radius);     // рисуем кольцо
     WORD randomColor() const;        // случайный цвет, независищий от эпилепсии
+    char randomChar() const;      // новый метод
+
 };

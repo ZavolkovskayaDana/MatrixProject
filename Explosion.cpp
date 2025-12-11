@@ -17,6 +17,10 @@ bool Explosion::isFinished() const {
     return finished;
 }
 
+char Explosion::randomChar() const {
+    return 33 + rand() % 94;
+}
+
 void Explosion::moveStep() {
     if (finished) return;
 
@@ -60,7 +64,7 @@ void Explosion::drawCircle(int r) {
 
     auto safePut = [&](int x, int y) {
         if (x >= 0 && x < W && y >= 0 && y < H) {
-            SystemUtils::writeChar(x, y, '*', color);
+            SystemUtils::writeChar(x, y, randomChar(), randomColor());
             lastPoints.push_back({ x, y });
         }
         };

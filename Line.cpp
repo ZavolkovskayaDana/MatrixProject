@@ -24,15 +24,14 @@ static int clampAndBounceY(int y, int height, int& zigDir) {
 Line::Line(int speed, int length, bool epilepsy,
         int explosionProbability,
         int radiusMin,
-        int radiusMax,
-        AppManager* owner)
+        int radiusMax)
     : speed(speed),
     length(length),
     epilepsy(epilepsy),
     explosionProbability(explosionProbability),
     radiusMin(radiusMin),
     radiusMax(radiusMax),
-    owner(owner)     // сохраняем указатель на AppManager
+
 {
     baseX = SystemUtils::getStartX();
     currentX = baseX;
@@ -89,7 +88,7 @@ void Line::moveStep()
         else {
             // пауза закончилась — размораживаем линию
             exploding = false;
-            lastStepTime = now;  // чтобы сразу не было "рывка" по скорости
+            lastStepTime = now;  // чтобы сразу не было рывка по скорости
         }
     }
 
@@ -118,7 +117,7 @@ void Line::moveStep()
             symbols.erase(symbols.begin());
             length--;   //реальная длина линии уменьшается 
 
-            // включаем "заморозку" линии на 0.5 секунды
+            //УДАЛИТЬ включаем "заморозку" линии на 0.5 секунды
             exploding = true;
             explodeLockEnd = GetTickCount64() + 500; // 500 мс = 2 шага в секунду у взрыва
 

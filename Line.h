@@ -5,13 +5,16 @@
 #include "Figure.h"
 
 
-class AppManager;  
-
 
 class Line : public Figure { //Все public-методы Figure станут public-методами Line
 private:
-    AppManager* owner;   // ссылка на менеджер, то есть даем Line доступ к AppManager,так как Line не может сама создавать взрыв
-    
+
+    // Запрос на взрыв (Line сама взрыв не создаёт)
+    bool needExplosion = false;   // true - линия запросила взрыв
+    int explosionX = 0;           // где именно
+    int explosionY = 0;
+   
+
     int explosionProbability;
     int radiusMin;
     int radiusMax;
@@ -41,8 +44,7 @@ public:
     Line(int speed, int length, bool epilepsy,
         int explosionProbability,
         int radiusMin,
-        int radiusMax,
-        AppManager* owner);
+        int radiusMax);
 
     void moveStep() override;  // двигаем линию на один шаг
     //void initialize(int column);  // создать линию в начальной позиции
