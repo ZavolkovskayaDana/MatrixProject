@@ -78,21 +78,6 @@ void Line::moveStep()
 {
     if (finished) return;
 
-    // 0. Если линия заморожена после взрыва — стоим
-    if (exploding) {
-        unsigned long long now = GetTickCount64();
-        if (now < explodeLockEnd) {
-            // ещё не прошло 0.5 секунды — линия стоит
-            return;
-        }
-        else {
-            // пауза закончилась — размораживаем линию
-            exploding = false;
-            lastStepTime = now;  // чтобы сразу не было рывка по скорости
-        }
-    }
-
-
     // 1. Тайминг скорости линии
     if (!canStep()) return;
 
@@ -119,9 +104,6 @@ void Line::moveStep()
             symbols.erase(symbols.begin());
             length--;   //реальная длина линии уменьшается 
 
-            //УДАЛИТЬ включаем "заморозку" линии на 0.5 секунды
-            exploding = true;
-            explodeLockEnd = GetTickCount64() + 500; // 500 мс = 2 шага в секунду у взрыва
 
             if (length <= 0 || symbols.empty()) { //длина 0
                 finished = true;

@@ -37,8 +37,6 @@ private:
     bool exiting = false;
     bool finished = false;
 
-    bool exploding = false;                 // сейчас линия стоит из-за взрыва
-    unsigned long long explodeLockEnd = 0;  // до какого момента времени она стоит
 
 public:
     Line(int speed, int length, bool epilepsy,
