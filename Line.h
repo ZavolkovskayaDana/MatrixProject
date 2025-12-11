@@ -46,6 +46,12 @@ public:
         int radiusMin,
         int radiusMax);
 
+    bool wantsExplosion() const { return needExplosion; }
+    int getExplosionX() const { return explosionX; }
+    int getExplosionY() const { return explosionY; }
+    void resetExplosionRequest() { needExplosion = false; }
+
+
     void moveStep() override;  // двигаем линию на один шаг
     //void initialize(int column);  // создать линию в начальной позиции
 

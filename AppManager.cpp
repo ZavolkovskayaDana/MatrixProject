@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include "Line.h"
+#include "Explosion.h"
 
 
 using namespace std;
@@ -81,7 +83,7 @@ void AppManager::initialize() {
 
 void AppManager::createNewLine() {
     //lines.emplace_back(speed, length, epilepsy);
-    figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax, this));
+    figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax));
         //функци€ возвращает указатель и кладет во внутренний массив
 }
 
@@ -91,15 +93,30 @@ void AppManager::createExplosion(int x, int y) {
 }
 
 void AppManager::drawFrame() {
-    // двигаем все, кто был в начале кадра
+
+    // 1. ƒвигаем все фигуры, которые были в начале кадра
     size_t count = figures.size();
+
     for (size_t i = 0; i < count; ++i) {
-        figures[i]->moveStep();
+
+        Figure* f = figures[i];
+        f->moveStep();
+
+        // провер€ем, €вл€етс€ ли фигура линией
+        Line* line = dynamic_cast<Line*>(f);
+        if (line && line->wantsExplosion()) {
+
+            // создаЄм взрыв через менеджер
+            createExplosion(line->getExplosionX(), line->getExplosionY());
+
+            // сбрасываем запрос, чтобы не создать второй взрыв
+            line->resetExplosionRequest();
+        }
     }
 
-    // удал€ем завершившиес€
-    for (auto it = figures.begin(); it != figures.end(); )
-    {
+    // 2. “еперь удал€ем завершившиес€ фигуры
+    for (auto it = figures.begin(); it != figures.end(); ) {
+
         if ((*it)->isFinished()) {
             delete* it;
             it = figures.erase(it);
@@ -109,7 +126,6 @@ void AppManager::drawFrame() {
         }
     }
 }
-
 
 
 void AppManager::run() {

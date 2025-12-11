@@ -30,7 +30,7 @@ Line::Line(int speed, int length, bool epilepsy,
     epilepsy(epilepsy),
     explosionProbability(explosionProbability),
     radiusMin(radiusMin),
-    radiusMax(radiusMax),
+    radiusMax(radiusMax)
 
 {
     baseX = SystemUtils::getStartX();
@@ -109,8 +109,10 @@ void Line::moveStep()
             int x = symbols.front().getX(); //координаты центра взрыва (1-ый символ)
             int y = symbols.front().getY();
 
-            // создаём взрыв
-            owner->createExplosion(x, y);
+            needExplosion = true; //нам нужен взры
+            explosionX = x;
+            explosionY = y;
+
 
             // удаляем 1-ый символ
             symbols.front().clear();

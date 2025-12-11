@@ -51,11 +51,6 @@ public:
     void createNewLine();   //срздаем линию
     void createExplosion(int x, int y); //создаем взрыв
 
- 
-    bool wantsExplosion() const { return needExplosion; }
-    int getExplosionX() const { return explosionX; }
-    int getExplosionY() const { return explosionY; }
-    void resetExplosionRequest() { needExplosion = false; }
 
 
 private:
