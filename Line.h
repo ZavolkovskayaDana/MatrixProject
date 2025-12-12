@@ -44,10 +44,10 @@ public:
         int radiusMin,
         int radiusMax);
 
-    bool wantsExplosion() const { return needExplosion; }
-    int getExplosionX() const { return explosionX; }
-    int getExplosionY() const { return explosionY; }
-    void resetExplosionRequest() { needExplosion = false; }
+    bool wantsExplosion() const override { return needExplosion; } //метод уже существует в Figure, мы его переопредяеляем в наследник Line
+    int getExplosionX() const override { return explosionX; }
+    int getExplosionY() const override { return explosionY; }
+    void resetExplosionRequest() override { needExplosion = false; }
 
 
     void moveStep() override;  // двигаем линию на один шаг

@@ -103,7 +103,7 @@ void AppManager::drawFrame() {
         f->moveStep();
 
         // проверяем, является ли фигура линией
-        Line* line = dynamic_cast<Line*>(f);
+        /*Line* line = dynamic_cast<Line*>(f); //вынести в класc фигуры 
         if (line && line->wantsExplosion()) {
 
             // создаём взрыв через менеджер
@@ -111,7 +111,13 @@ void AppManager::drawFrame() {
 
             // сбрасываем запрос, чтобы не создать второй взрыв
             line->resetExplosionRequest();
+        }*/
+
+        if (f->wantsExplosion()) {
+            createExplosion(f->getExplosionX(), f->getExplosionY());
+            f->resetExplosionRequest();
         }
+    
     }
 
     // 2. Теперь удаляем завершившиеся фигуры

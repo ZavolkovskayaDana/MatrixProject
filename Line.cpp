@@ -82,7 +82,7 @@ void Line::moveStep()
     if (!canStep()) return;
 
     int height = SystemUtils::getConsoleHeight();
-    int usableHeight = (height > 4) ? height - 3 : height;
+    int usableHeight = (height > 4) ? height - 3 : height; //ограничиваем вертикальную область
 
     // 2. Попытка сделать взрыв (убирает только 1 символ)
     if (!symbols.empty()) //если у нас вектор не пустой (в линии есть символы)
@@ -94,7 +94,7 @@ void Line::moveStep()
             int x = symbols.front().getX(); //координаты центра взрыва (1-ый символ)
             int y = symbols.front().getY();
 
-            needExplosion = true; //нам нужен взры
+            needExplosion = true; //нам нужен взрыв
             explosionX = x;
             explosionY = y;
 
