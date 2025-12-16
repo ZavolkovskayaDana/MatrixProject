@@ -139,6 +139,8 @@
     <ClInclude Include="Explosion.h" />
     <ClInclude Include="Figure.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="LinkedList.h" />
+    <ClInclude Include="List.h" />
     <ClInclude Include="Symbol.h" />
     <ClInclude Include="SystemUtils.h" />
   </ItemGroup>
