@@ -2,9 +2,10 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <algorithm>
+//#include <algorithm>
 #include "Line.h"
 #include "Explosion.h"
+#include "LinkedList.h"
 
 
 using namespace std;
@@ -22,6 +23,9 @@ AppManager::AppManager()
     lastSpawnTime(0)
 {
     srand(static_cast<unsigned>(time(nullptr)));
+
+    figures = new LinkedList<Figure*>();
+    spawnDelays = new LinkedList<int>();
 }
 
 AppManager::AppManager(int frequency,
@@ -42,14 +46,27 @@ AppManager::AppManager(int frequency,
     lastSpawnTime(0)
 {
     srand(static_cast<unsigned>(time(nullptr)));
+
+    figures = new LinkedList<Figure*>();
+    spawnDelays = new LinkedList<int>();
 }
 
 AppManager::~AppManager() {
-    // ѕо-хорошему можно удалить все фигуры, если они остались (но их нет, потому что run() Ч бесконечный цикл)
-    for (Figure* f : figures) {
+   
+    /*for (Figure* f : figures) {
         delete f;
     }
     figures.clear();
+    */
+    //дл€ 4 лабы
+    // удал€ем все фигуры
+    while (figures->size() > 0) {
+        delete figures->at(0);
+        figures->erase(0);
+    }
+
+    delete figures;
+    delete spawnDelays;
 }
 
 
@@ -83,56 +100,62 @@ void AppManager::initialize() {
 
 void AppManager::createNewLine() {
     //lines.emplace_back(speed, length, epilepsy);
-    figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax));
-        //функци€ возвращает указатель и кладет во внутренний массив
+    //figures.push_back(new Line(speed, length, epilepsy, explosionProbability, radiusMin, radiusMax));
+    
+    //figures Ч это указатель на контейнер ("переходим по адресу и вызываем метод у объ€екта")
+    figures->push_back(new Line(speed, length, epilepsy,
+        explosionProbability,
+        radiusMin,
+        radiusMax));
+
 }
 
 //создаем взрыв
 void AppManager::createExplosion(int x, int y) {
-    figures.push_back(new Explosion(x, y, radiusMin, radiusMax));
+    figures->push_back(new Explosion(x, y, radiusMin, radiusMax));
 }
 
 void AppManager::drawFrame() {
 
     // 1. ƒвигаем все фигуры, которые были в начале кадра
-    size_t count = figures.size();
+    size_t count = figures->size();
 
     for (size_t i = 0; i < count; ++i) {
 
-        Figure* f = figures[i];
+        //Figure* f = figures[i];
+        Figure* f = figures->at(i);
         f->moveStep();
-
-        // провер€ем, €вл€етс€ ли фигура линией
-        /*Line* line = dynamic_cast<Line*>(f); //вынести в класc фигуры 
-        if (line && line->wantsExplosion()) {
-
-            // создаЄм взрыв через менеджер
-            createExplosion(line->getExplosionX(), line->getExplosionY());
-
-            // сбрасываем запрос, чтобы не создать второй взрыв
-            line->resetExplosionRequest();
-        }*/
 
         if (f->wantsExplosion()) {
             createExplosion(f->getExplosionX(), f->getExplosionY());
             f->resetExplosionRequest();
         }
-    
+
     }
 
-    // 2. “еперь удал€ем завершившиес€ фигуры
-    for (auto it = figures.begin(); it != figures.end(); ) {
+    /* // 2. “еперь удал€ем завершившиес€ фигуры
+     for (auto it = figures.begin(); it != figures.end(); ) {
 
-        if ((*it)->isFinished()) {
-            delete* it;
-            it = figures.erase(it);
+         if ((*it)->isFinished()) {
+             delete* it;
+             it = figures.erase(it);
+         }
+         else {
+             ++it;
+         }
+     }*/
+
+     // 2. ”дал€ем завершившиес€ фигуры
+    for (size_t i = 0; i < figures->size(); ) {
+        if (figures->at(i)->isFinished()) {
+            delete figures->at(i);
+            figures->erase(i);
         }
         else {
-            ++it;
+            ++i;
         }
     }
 }
-
 
 void AppManager::run() {
     SystemUtils::initConsole(120, 35);
@@ -145,8 +168,8 @@ void AppManager::run() {
         DWORD now = GetTickCount64();
         DWORD elapsed = now - lastSpawnTime;
 
-        if (currentDelayIndex < spawnDelays.size() &&
-            elapsed >= spawnDelays[currentDelayIndex])
+        if (currentDelayIndex < spawnDelays->size() &&
+            elapsed >= spawnDelays->at(currentDelayIndex))
         {
             createNewLine();
             currentDelayIndex++;
@@ -162,7 +185,7 @@ void AppManager::run() {
 
 
 
-//генерируем случайное врем€ задержек 
+/*//генерируем случайное врем€ задержек 
 void AppManager::generateSpawnSchedule() {
     spawnDelays.clear();
     spawnDelays.reserve(frequency);
@@ -175,4 +198,30 @@ void AppManager::generateSpawnSchedule() {
     currentDelayIndex = 0;
     lastSpawnTime = GetTickCount64(); //врем€ начала текущей секунды = количество миллисекунд, прошедших с момента запуска системы.ем€ от начала процесса 
 
+}*/
+
+void AppManager::generateSpawnSchedule() {
+
+    // очищаем старые задержки
+    while (spawnDelays->size() > 0) {
+        spawnDelays->erase(0);
+    }
+
+    for (int i = 0; i < frequency; i++) {
+        spawnDelays->push_back(rand() % 1000);
+    }
+
+    // проста€ сортировка вместо std::sort(spawnDelays.begin(), spawnDelays.end()); //сортируем список
+    for (size_t i = 0; i < spawnDelays->size(); ++i) {
+        for (size_t j = i + 1; j < spawnDelays->size(); ++j) {
+            if (spawnDelays->at(j) < spawnDelays->at(i)) {
+                int tmp = spawnDelays->at(i);
+                spawnDelays->at(i) = spawnDelays->at(j);
+                spawnDelays->at(j) = tmp;
+            }
+        }
+    }
+
+    currentDelayIndex = 0;
+    lastSpawnTime = GetTickCount64();
 }
