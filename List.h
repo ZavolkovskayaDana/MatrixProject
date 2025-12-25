@@ -9,6 +9,9 @@ public:
     // Добавить элемент в конец
     virtual void push_back(const T& value) = 0;
 
+    // Вставить элемент в позицию index
+    virtual void insert(size_t index, const T& value) = 0;
+
     // Удалить элемент по индексу
     virtual void erase(size_t index) = 0;
 

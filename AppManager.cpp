@@ -66,6 +66,9 @@ AppManager::~AppManager() {
     }
 
     delete figures;
+
+    //Очищаем контейнер задержек
+    spawnDelays->clear();
     delete spawnDelays;
 }
 
@@ -165,8 +168,8 @@ void AppManager::run() {
     generateSpawnSchedule();
 
     while (true) {
-        DWORD now = GetTickCount64();
-        DWORD elapsed = now - lastSpawnTime;
+        ULONGLONG now = GetTickCount64();
+        ULONGLONG elapsed = now - lastSpawnTime;
 
         if (currentDelayIndex < spawnDelays->size() &&
             elapsed >= spawnDelays->at(currentDelayIndex))
@@ -204,7 +207,8 @@ void AppManager::generateSpawnSchedule() {
 
     // очищаем старые задержки
     while (spawnDelays->size() > 0) {
-        spawnDelays->erase(0);
+        //spawnDelays->erase(0);
+        spawnDelays->clear();
     }
 
     for (int i = 0; i < frequency; i++) {

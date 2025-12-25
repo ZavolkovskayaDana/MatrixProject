@@ -2,9 +2,12 @@
 #include "Line.h"
 #include "SystemUtils.h"
 #include <ctime>
+#include <windows.h>
 //#include <vector>
 #include "Explosion.h"
 #include "List.h"
+#include "Figure.h"
+
 
 class AppManager {
 private:

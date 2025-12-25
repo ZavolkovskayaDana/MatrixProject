@@ -3,8 +3,6 @@
 //Они компилируются только в момент использования, когда компилятор знает конкретный тип 
 
 #pragma once
-
-#pragma once
 #include "List.h"
 #include <stdexcept>
 
@@ -22,10 +20,11 @@ private:
     size_t count;   //кол-во элементов
 
 public:
-    LinkedList() : head(nullptr), count(0) {}   //конструктор
-    ~LinkedList() override { clear(); }         //диструктор 
+    LinkedList();   //конструктор
+    ~LinkedList() override;     //диструктор 
 
     void push_back(const T& value) override;    //переопределяем методы из базового класса 
+    void insert(size_t index, const T& value) override;
     void erase(size_t index) override;
     T& at(size_t index) override;
     size_t size() const override;
@@ -57,7 +56,7 @@ void LinkedList<T>::push_back(const T& value) {
         head = newNode;
     }
     else {
-        Node* cur = head;   //указатель на тек узел, нач с 1 узла
+        Node* cur = head;   //указатель на тек-ий узел, нач с 1 узла
         while (cur->next) {
             cur = cur->next;    
         }
@@ -67,6 +66,35 @@ void LinkedList<T>::push_back(const T& value) {
     ++count;    //увеличиваем кол-во эл-тов
 }
 
+// Вставить элемент в позицию index
+template<typename T>
+void LinkedList<T>::insert(size_t index, const T& value)
+{
+    // если индекс больше размера, то ничего не делаем
+    if (index > count) return;
+
+    Node* newNode = new Node(value);
+
+    // вставка в начало
+    if (index == 0) {
+        newNode->next = head;
+        head = newNode;
+        ++count;
+        return;
+    }
+
+    // ищем предыдущий узел (index-1)
+    Node* prev = head;
+    for (size_t i = 0; i < index - 1; ++i) {
+        prev = prev->next;
+    }
+
+    // врезаем новый узел между prev и prev->next
+    newNode->next = prev->next;
+    prev->next = newNode;
+
+    ++count;
+}
 
 // Доступ по индексу
 template<typename T>
